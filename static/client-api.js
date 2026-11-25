@@ -411,10 +411,66 @@
 
       if (url.includes('/api/investments')) {
         if (method === 'GET') return makeResponse({ investments, summary: computePortfolioSummary() });
+        if (method === 'POST') {
+          const inv = {
+            id: `inv-${Math.random().toString(36).substr(2, 6)}`,
+            name: body.name,
+            symbol: body.symbol || body.name.slice(0, 4).toUpperCase(),
+            type: body.type || 'stock',
+            exchange: body.exchange || 'NSE',
+            quantity: Number(body.quantity),
+            avg_price: Number(body.avg_price),
+            current_price: Number(body.current_price || body.avg_price),
+            day_change: Number(body.day_change || 0),
+            sector: body.sector || 'Other',
+            color: body.color || '#6366f1',
+            icon: body.icon || '📈',
+            history: body.history || []
+          };
+          investments.push(inv);
+          return makeResponse({ success: true, investment: inv });
+        }
+        if (method === 'DELETE') {
+          const id = url.split('/').pop();
+          investments = investments.filter(i => i.id !== id);
+          return makeResponse({ success: true });
+        }
       }
 
       if (url.includes('/api/sips')) {
         if (method === 'GET') return makeResponse({ sips });
+        if (method === 'POST') {
+          if (url.endsWith('/toggle')) {
+            const parts = url.split('/');
+            const sipId = parts[parts.length - 2];
+            const sip = sips.find(s => s.id === sipId);
+            if (sip) {
+              sip.status = sip.status === 'active' ? 'paused' : 'active';
+              return makeResponse({ success: true, sip });
+            }
+            return makeResponse({ success: false }, 404);
+          }
+          const sip = {
+            id: `sip-${Math.random().toString(36).substr(2, 6)}`,
+            investment_id: body.investment_id || null,
+            name: body.name,
+            amount: Number(body.amount),
+            frequency: body.frequency || 'monthly',
+            date: Number(body.date || 1),
+            status: 'active',
+            start_date: formatDateStr(new Date()),
+            total_invested: 0,
+            current_value: 0,
+            icon: body.icon || '📊'
+          };
+          sips.push(sip);
+          return makeResponse({ success: true, sip });
+        }
+        if (method === 'DELETE') {
+          const id = url.split('/').pop();
+          sips = sips.filter(s => s.id !== id);
+          return makeResponse({ success: true });
+        }
       }
 
       // 6. Bank connections
@@ -543,6 +599,22 @@
 
       // 10. Accounts
       if (url.includes('/api/accounts')) {
+        if (method === 'POST') {
+          const acc = {
+            id: `acc-manual-${Math.random().toString(36).substr(2, 6)}`,
+            bank: body.bank || 'Manual Account',
+            name: body.name,
+            type: body.type || 'savings',
+            last_four: String(body.last_four || '0000').slice(-4),
+            balance: Number(body.balance || 0),
+            status: 'manual',
+            provider: 'manual',
+            last_synced: new Date().toISOString(),
+            color: body.color || '#6366f1'
+          };
+          accounts.push(acc);
+          return makeResponse({ success: true, account: acc });
+        }
         return makeResponse({ accounts });
       }
 

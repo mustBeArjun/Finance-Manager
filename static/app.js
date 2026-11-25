@@ -16,20 +16,20 @@ let statementTransactions = [];
 let presentationMode = false;
 
 const CATEGORY_COLORS = {
-  'Food & Dining': '#ae5145',
-  'Shopping': '#98682f',
-  'Transport': '#4f686d',
-  'Entertainment': '#795777',
-  'Bills & Utilities': '#447264',
-  'Health': '#9d5267',
-  'Education': '#656487',
-  'Salary': '#2f6b4f',
-  'Freelance': '#556e79',
-  'Investment Returns': '#61713d',
-  'Cash': '#74675c',
-  'Transfer': '#916450',
-  'Other': '#74675c',
-  'Uncategorized': '#6e625a'
+  'Food & Dining': '#a855f7',
+  'Shopping': '#38bdf8',
+  'Transport': '#22d3ee',
+  'Entertainment': '#f472b6',
+  'Bills & Utilities': '#818cf8',
+  'Health': '#2dd4bf',
+  'Education': '#fbbf24',
+  'Salary': '#2dd4bf',
+  'Freelance': '#38bdf8',
+  'Investment Returns': '#c084fc',
+  'Cash': '#94a3b8',
+  'Transfer': '#fb7185',
+  'Other': '#64748b',
+  'Uncategorized': '#64748b'
 };
 
 // =============================================================================
@@ -189,6 +189,27 @@ async function loadDashboard() {
   savings.textContent = (data.summary.savings < 0 ? '−' : '') + formatCurrency(data.summary.savings);
   savings.classList.toggle('negative', data.summary.savings < 0);
 
+  // Hydrate Cosmic Hero Float Metrics & AI Insight Card
+  const inc = data.summary.income || 0;
+  const sav = data.summary.savings || 0;
+  const savPct = inc > 0 ? Math.round((sav / inc) * 100) : 0;
+  const heroPctEl = document.getElementById('heroSavingsPct');
+  if (heroPctEl) heroPctEl.textContent = `${savPct >= 0 ? '+' : ''}${savPct}% net savings rate`;
+  const heroGrowthEl = document.getElementById('heroMonthlyGrowth');
+  if (heroGrowthEl) heroGrowthEl.textContent = `${savPct >= 0 ? '+' : ''}${savPct}%`;
+  const heroStatusTitle = document.getElementById('heroStatusTitle');
+  const heroStatusSub = document.getElementById('heroStatusSub');
+  if (heroStatusTitle && heroStatusSub) {
+    if (sav >= 0) {
+      heroStatusTitle.textContent = "You're on track!";
+      heroStatusSub.textContent = `Net surplus of ${formatCurrency(sav)} this month.`;
+    } else {
+      heroStatusTitle.textContent = "Watch spending";
+      heroStatusSub.textContent = `Expenses exceed income by ${formatCurrency(Math.abs(sav))}.`;
+    }
+  }
+  hydrateDashboardShowcase(data);
+
   // Money Sources
   const sourceCards = document.getElementById('dashSourceCards');
   const sources = data.summary.source_counts;
@@ -336,14 +357,15 @@ function getChartDefaults() {
   const theme = getComputedStyle(document.documentElement);
   const color = token => theme.getPropertyValue(token).trim();
   return {
-    color: color('--text-primary'),
-    gridColor: color('--border-color'),
-    tickColor: color('--text-secondary'),
-    surface: color('--bg-card'),
-    primary: color('--accent-primary'),
-    coral: color('--accent-coral'),
-    success: color('--accent-success'),
-    warning: color('--accent-warning')
+    color: color('--text-primary') || '#f8fafc',
+    gridColor: color('--border-color') || 'rgba(148,163,255,0.16)',
+    tickColor: color('--text-secondary') || '#b4bcd8',
+    surface: color('--bg-card-solid') || '#11132b',
+    primary: color('--accent-primary') || '#9353ff',
+    cyan: color('--accent-cyan') || '#22d3ee',
+    coral: color('--accent-coral') || '#f472b6',
+    success: color('--accent-success') || '#2dd4bf',
+    warning: color('--accent-warning') || '#fbbf24'
   };
 }
 
@@ -351,15 +373,24 @@ function renderDashboardCharts(data) {
   if (typeof Chart !== 'function') return;
   const defaults = getChartDefaults();
 
-  // Spending Trend
+  // Spending Trend (Luminous Cyan & Violet Cosmic Curves)
   destroyChart('dashSpendingChart');
   const dailyLabels = data.daily_spending.map(d => {
     const date = new Date(d.date);
     return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
   });
 
+  const trendCtx = document.getElementById('dashSpendingChart').getContext('2d');
+  const cyanGrad = trendCtx.createLinearGradient(0, 0, 0, 210);
+  cyanGrad.addColorStop(0, 'rgba(34, 211, 238, 0.35)');
+  cyanGrad.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+
+  const violetGrad = trendCtx.createLinearGradient(0, 0, 0, 210);
+  violetGrad.addColorStop(0, 'rgba(168, 85, 247, 0.28)');
+  violetGrad.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+
   chartInstances['dashSpendingChart'] = new Chart(
-    document.getElementById('dashSpendingChart').getContext('2d'),
+    trendCtx,
     {
       type: 'line',
       data: {
@@ -368,24 +399,25 @@ function renderDashboardCharts(data) {
           {
             label: 'Income',
             data: data.daily_spending.map(d => d.income),
-            borderColor: defaults.success,
-            backgroundColor: defaults.success + '1a',
+            borderColor: defaults.cyan,
+            backgroundColor: cyanGrad,
             fill: true,
-            tension: 0.4,
+            tension: 0.42,
             pointRadius: 0,
             pointHoverRadius: 5,
-            borderWidth: 2
+            pointHoverBackgroundColor: '#ffffff',
+            borderWidth: 2.5
           },
           {
             label: 'Expenses',
             data: data.daily_spending.map(d => d.expenses),
-            borderColor: defaults.coral,
-            borderDash: [5, 3],
-            backgroundColor: defaults.coral + '1f',
+            borderColor: '#a855f7',
+            backgroundColor: violetGrad,
             fill: true,
-            tension: 0.4,
+            tension: 0.42,
             pointRadius: 0,
             pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#ffffff',
             borderWidth: 2
           }
         ]
@@ -395,7 +427,7 @@ function renderDashboardCharts(data) {
         maintainAspectRatio: false,
         interaction: { intersect: false, mode: 'index' },
         plugins: {
-          legend: { display: true, position: 'top', labels: { color: defaults.color, usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11 } } },
+          legend: { display: true, position: 'top', labels: { color: defaults.color, usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } },
           tooltip: {
             backgroundColor: defaults.surface,
             titleColor: defaults.color,
@@ -403,12 +435,12 @@ function renderDashboardCharts(data) {
             borderColor: defaults.gridColor,
             borderWidth: 1,
             padding: 10,
-            cornerRadius: 8,
+            cornerRadius: 10,
             callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString('en-IN')}` }
           }
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: defaults.tickColor, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 8 } },
+          x: { grid: { display: false }, ticks: { color: defaults.tickColor, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 7 } },
           y: { grid: { color: defaults.gridColor }, ticks: { color: defaults.tickColor, font: { size: 10 }, callback: v => '₹' + (v / 1000).toFixed(0) + 'k' }, beginAtZero: true }
         }
       }
@@ -426,7 +458,7 @@ function renderDashboardCharts(data) {
           labels: data.category_breakdown.map(c => c.category),
           datasets: [{
             data: data.category_breakdown.map(c => c.amount),
-            backgroundColor: data.category_breakdown.map(c => CATEGORY_COLORS[c.category] || '#6e625a'),
+            backgroundColor: data.category_breakdown.map(c => CATEGORY_COLORS[c.category] || '#818cf8'),
             borderWidth: 0,
             hoverOffset: 8
           }]
@@ -434,9 +466,9 @@ function renderDashboardCharts(data) {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '65%',
+          cutout: '68%',
           plugins: {
-            legend: { position: 'right', labels: { color: defaults.color, usePointStyle: true, pointStyle: 'circle', padding: 10, font: { size: 11 } } },
+            legend: { position: 'bottom', labels: { color: defaults.color, usePointStyle: true, pointStyle: 'circle', padding: 8, font: { size: 10 } } },
             tooltip: {
               backgroundColor: defaults.surface,
               titleColor: defaults.color,
@@ -444,7 +476,7 @@ function renderDashboardCharts(data) {
               borderColor: defaults.gridColor,
               borderWidth: 1,
               padding: 10,
-              cornerRadius: 8,
+              cornerRadius: 10,
               callbacks: { label: ctx => `${ctx.label}: ₹${ctx.parsed.toLocaleString('en-IN')}` }
             }
           }
@@ -543,7 +575,219 @@ async function addTransaction() {
 // =============================================================================
 // CONNECT BANK
 // =============================================================================
+const BANK_LINKED_STOCK_HOLDINGS = {
+  'demo-acc-001': [
+    { name: 'Reliance Industries', symbol: 'RELIANCE', type: 'stock', exchange: 'NSE', quantity: 8, avg_price: 2450.00, current_price: 2680.50, day_change: 1.85, sector: 'Energy', color: '#38bdf8', icon: '📈' },
+    { name: 'Tata Consultancy Services', symbol: 'TCS', type: 'stock', exchange: 'NSE', quantity: 5, avg_price: 3620.00, current_price: 3820.50, day_change: 1.12, sector: 'IT', color: '#a855f7', icon: '💻' },
+    { name: 'HDFC Bank', symbol: 'HDFCBANK', type: 'stock', exchange: 'NSE', quantity: 12, avg_price: 1580.00, current_price: 1725.30, day_change: 0.92, sector: 'Banking', color: '#818cf8', icon: '🏦' }
+  ],
+  'demo-acc-002': [],
+  'demo-acc-003': [
+    { name: 'Infosys', symbol: 'INFY', type: 'stock', exchange: 'NSE', quantity: 15, avg_price: 1420.00, current_price: 1385.60, day_change: -0.45, sector: 'IT', color: '#22d3ee', icon: '💻' },
+    { name: 'Tata Power', symbol: 'TATAPOWER', type: 'stock', exchange: 'NSE', quantity: 30, avg_price: 245.00, current_price: 312.80, day_change: 2.34, sector: 'Power', color: '#2dd4bf', icon: '⚡' }
+  ],
+  'demo-acc-004': [
+    { name: 'State Bank of India', symbol: 'SBIN', type: 'stock', exchange: 'NSE', quantity: 25, avg_price: 690.00, current_price: 782.40, day_change: 1.45, sector: 'Banking', color: '#38bdf8', icon: '🏦' },
+    { name: 'ITC Ltd', symbol: 'ITC', type: 'stock', exchange: 'NSE', quantity: 40, avg_price: 425.00, current_price: 465.80, day_change: 0.45, sector: 'FMCG', color: '#fbbf24', icon: '🏭' }
+  ],
+  'demo-acc-005': [
+    { name: 'Bajaj Finance', symbol: 'BAJFINANCE', type: 'stock', exchange: 'NSE', quantity: 4, avg_price: 6680.00, current_price: 6950.30, day_change: 0.78, sector: 'NBFC', color: '#a855f7', icon: '🏦' },
+    { name: 'Asian Paints', symbol: 'ASIANPAINT', type: 'stock', exchange: 'NSE', quantity: 6, avg_price: 2980.00, current_price: 3150.25, day_change: 0.32, sector: 'Consumer', color: '#f472b6', icon: '🎨' }
+  ],
+  'demo-acc-006': []
+};
+
+const BANK_LINKED_SIP_MANDATES = {
+  'demo-acc-001': [
+    { name: 'Parag Parikh Flexi Cap', amount: 5000, date: 5, frequency: 'monthly', icon: '📊' },
+    { name: 'Nifty 50 Index Fund', amount: 3000, date: 10, frequency: 'monthly', icon: '📈' }
+  ],
+  'demo-acc-002': [],
+  'demo-acc-003': [
+    { name: 'ICICI Prudential Bluechip Fund', amount: 4000, date: 12, frequency: 'monthly', icon: '🏦' }
+  ],
+  'demo-acc-004': [
+    { name: 'SBI Small Cap Fund', amount: 2500, date: 15, frequency: 'monthly', icon: '🚀' }
+  ],
+  'demo-acc-005': [
+    { name: 'Axis Midcap Fund', amount: 3500, date: 7, frequency: 'monthly', icon: '📊' }
+  ],
+  'demo-acc-006': []
+};
+
+function resolveBankProfileKey(accountId, bankName = '', accountType = 'savings') {
+  if (accountId && (BANK_LINKED_STOCK_HOLDINGS[accountId] || BANK_LINKED_SIP_MANDATES[accountId])) {
+    return accountId;
+  }
+  if (accountType === 'credit' || accountType === 'loan') return null;
+  const b = (bankName || '').toLowerCase();
+  if (b.includes('hdfc')) return 'demo-acc-001';
+  if (b.includes('icici')) return 'demo-acc-003';
+  if (b.includes('sbi') || b.includes('state bank')) return 'demo-acc-004';
+  if (b.includes('axis')) return 'demo-acc-005';
+  if (b.includes('kotak')) return 'demo-acc-006';
+  return null;
+}
+
+async function syncAccountInvestmentsAndSips(profileKey, syncedTxns = []) {
+  const detectedStocks = [...(BANK_LINKED_STOCK_HOLDINGS[profileKey] || [])];
+  const detectedSips = [...(BANK_LINKED_SIP_MANDATES[profileKey] || [])];
+
+  const hasStockTxSignal = Array.isArray(syncedTxns) && syncedTxns.some(tx =>
+    /dividend|demat|zerodha|groww|upstox|angel|broker|stock|equity|nse|bse/i.test(`${tx.description} ${tx.category}`)
+  );
+  if (detectedStocks.length === 0 && hasStockTxSignal) {
+    detectedStocks.push({ name: 'Nifty 50 Bees ETF', symbol: 'NIFTYBEES', type: 'etf', exchange: 'NSE', quantity: 20, avg_price: 235.00, current_price: 262.40, day_change: 0.85, sector: 'Index', color: '#22d3ee', icon: '📈' });
+  }
+
+  const hasSipTxSignal = Array.isArray(syncedTxns) && syncedTxns.some(tx =>
+    /\bsip\b|mutual fund|nach|ecs|folio|amc|coin|kuvera/i.test(`${tx.description} ${tx.category}`)
+  );
+  if (detectedSips.length === 0 && hasSipTxSignal) {
+    detectedSips.push({ name: 'Nifty 50 Index SIP', amount: 3000, date: 5, frequency: 'monthly', icon: '📈' });
+  }
+
+  const [existingInvData, existingSipData] = await Promise.all([
+    apiCall('/api/investments'),
+    apiCall('/api/sips')
+  ]);
+
+  const existingSymbols = new Set((existingInvData?.investments || []).map(i => (i.symbol || '').toUpperCase()));
+  const existingSipNames = new Set((existingSipData?.sips || []).map(s => (s.name || '').trim().toLowerCase()));
+
+  const addedStocks = [];
+  const skippedStocks = [];
+  for (const stock of detectedStocks) {
+    if (existingSymbols.has(stock.symbol.toUpperCase())) {
+      skippedStocks.push(stock);
+      continue;
+    }
+    const res = await apiCall('/api/investments', { method: 'POST', body: JSON.stringify(stock) });
+    if (res?.success) {
+      addedStocks.push(res.investment || stock);
+      existingSymbols.add(stock.symbol.toUpperCase());
+    }
+  }
+
+  const addedSips = [];
+  const skippedSips = [];
+  for (const sip of detectedSips) {
+    const key = sip.name.trim().toLowerCase();
+    if (existingSipNames.has(key)) {
+      skippedSips.push(sip);
+      continue;
+    }
+    const res = await apiCall('/api/sips', { method: 'POST', body: JSON.stringify(sip) });
+    if (res?.success) {
+      addedSips.push(res.sip || sip);
+      existingSipNames.add(key);
+    }
+  }
+
+  return { detectedStocks, addedStocks, skippedStocks, detectedSips, addedSips, skippedSips };
+}
+
+async function switchToLiveModeForBank() {
+  presentationMode = false;
+  document.getElementById('presentationToggle').checked = false;
+  const demoBadge = document.getElementById('sidebarDemoState');
+  if (demoBadge) demoBadge.textContent = 'Live Mode';
+  await apiCall('/api/presentation/reset', { method: 'POST' });
+  await loadConnectBank();
+  updateNotifBadge();
+}
+
+async function autoSyncBankStockHoldings(bankId, accountId, syncedTxns) {
+  const resultBox = document.getElementById('bankStockSyncResult');
+  const viewPortBtn = document.getElementById('bankViewPortfolioBtn');
+  if (!resultBox) return;
+
+  if (presentationMode) {
+    resultBox.style.display = 'block';
+    resultBox.innerHTML = `
+      <div style="padding:14px 16px;border-radius:var(--radius-md);background:rgba(139,92,246,0.12);border:1px solid var(--border-glow)">
+        <div style="font-weight:700;font-size:0.88rem;color:var(--accent-primary-hover);margin-bottom:4px">Demo Mode Active</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary)">Automatic bank-to-portfolio stock &amp; SIP syncing runs in <strong>Live Mode</strong>. Switch to Live Mode on Connect Bank to test automatic discovery from zero holdings.</div>
+      </div>
+    `;
+    if (viewPortBtn) viewPortBtn.style.display = 'none';
+    return;
+  }
+
+  const profileKey = resolveBankProfileKey(accountId);
+  const { detectedStocks, addedStocks, skippedStocks, detectedSips, addedSips, skippedSips } =
+    await syncAccountInvestmentsAndSips(profileKey, syncedTxns);
+
+  if (detectedStocks.length === 0 && detectedSips.length === 0) {
+    resultBox.style.display = 'block';
+    resultBox.innerHTML = `
+      <div style="padding:14px 16px;border-radius:var(--radius-md);background:var(--bg-glass);border:1px solid var(--border-color)">
+        <div style="font-weight:700;font-size:0.88rem;color:var(--text-primary);margin-bottom:4px">No Stock or SIP Investments Detected</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary)">Checked linked demat, brokerage, and mutual fund SIP mandates for this bank account — no active holdings or SIPs were found.</div>
+      </div>
+    `;
+    if (viewPortBtn) viewPortBtn.style.display = 'none';
+    return;
+  }
+
+  resultBox.style.display = 'block';
+  const stocksHtml = detectedStocks.map(s => {
+    const val = s.quantity * s.current_price;
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border-color);margin-top:6px">
+        <div>
+          <strong style="font-size:0.85rem">${escapeHtml(s.symbol)}</strong>
+          <span style="font-size:0.75rem;color:var(--text-tertiary)"> • ${escapeHtml(s.name)} (${s.quantity} shares)</span>
+        </div>
+        <span style="font-weight:700;font-size:0.85rem;color:var(--accent-cyan)">${formatCurrency(val)}</span>
+      </div>
+    `;
+  }).join('');
+
+  const sipsHtml = detectedSips.map(sip => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:10px;background:rgba(139,92,246,0.08);border:1px solid var(--border-glow);margin-top:6px">
+      <div>
+        <strong style="font-size:0.85rem">${escapeHtml(sip.name)}</strong>
+        <span style="font-size:0.75rem;color:var(--text-tertiary)"> • Auto-SIP Day ${sip.date} (${sip.frequency})</span>
+      </div>
+      <span style="font-weight:700;font-size:0.85rem;color:var(--accent-primary-hover)">${formatCurrency(sip.amount)}/mo</span>
+    </div>
+  `).join('');
+
+  const parts = [];
+  if (addedStocks.length > 0) parts.push(`${addedStocks.length} Stock${addedStocks.length > 1 ? 's' : ''}`);
+  if (addedSips.length > 0) parts.push(`${addedSips.length} SIP${addedSips.length > 1 ? 's' : ''}`);
+  const headline = parts.length > 0
+    ? `${parts.join(' & ')} Auto-Added to Portfolio`
+    : 'Linked Stocks & SIPs Already in Portfolio';
+
+  const alreadyCount = skippedStocks.length + skippedSips.length;
+
+  resultBox.innerHTML = `
+    <div style="padding:14px 16px;border-radius:var(--radius-md);background:var(--accent-success-bg);border:1px solid rgba(45,212,191,0.35)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div style="font-weight:700;font-size:0.9rem;color:var(--accent-success)">✓ ${headline}</div>
+        <span class="badge badge-success">Live Mode Sync</span>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:4px">
+        Detected linked investments &amp; recurring SIP mandates on this bank account${alreadyCount ? ` (${alreadyCount} already synced)` : ''}:
+      </div>
+      ${stocksHtml}
+      ${sipsHtml}
+    </div>
+  `;
+  if (viewPortBtn) viewPortBtn.style.display = 'inline-flex';
+}
+
 async function loadConnectBank() {
+  const modeBadge = document.getElementById('bankModeBadge');
+  const switchBtn = document.getElementById('bankSwitchLiveBtn');
+  if (modeBadge) {
+    modeBadge.textContent = presentationMode ? 'Presentation Mode' : 'Live Mode (Auto Stock & SIP Sync)';
+    modeBadge.className = `badge ${presentationMode ? 'badge-info' : 'badge-success'}`;
+  }
+  if (switchBtn) switchBtn.style.display = presentationMode ? 'inline-flex' : 'none';
+
   // Load available banks
   const data = await apiCall('/api/banks/available');
   const bankList = document.getElementById('bankList');
@@ -682,6 +926,9 @@ async function grantPermissionsAndConnect() {
     document.getElementById('bankDupCount').textContent =
       syncData.duplicate_count + ' possible duplicates detected';
 
+    // Automatically check if this bank account is invested in any stocks & add to portfolio in Live Mode
+    await autoSyncBankStockHoldings(selectedBankId, selectedAccountId, syncedTransactions);
+
     permissions.style.display = 'none';
     document.getElementById('bankStep5').style.display = 'block';
     loadConnectBank();
@@ -719,6 +966,10 @@ function resetBankFlow() {
   selectedBankId = null;
   selectedAccountId = null;
   syncedTransactions = [];
+  const stockResult = document.getElementById('bankStockSyncResult');
+  if (stockResult) { stockResult.style.display = 'none'; stockResult.innerHTML = ''; }
+  const viewPortBtn = document.getElementById('bankViewPortfolioBtn');
+  if (viewPortBtn) viewPortBtn.style.display = 'none';
 
   // Reset connection steps
   ['connStep1', 'connStep2', 'connStep3', 'connStep4'].forEach((id, i) => {
@@ -1269,8 +1520,8 @@ function scrollToSimulator() {
 // =============================================================================
 
 const INV_TYPE_LABELS = { stock: 'Stock', mutual_fund: 'Mutual Fund', gold: 'Gold', etf: 'ETF', bond: 'Bond' };
-const INV_TYPE_COLORS = { stock: '#4f686d', mutual_fund: '#2f6b4f', gold: '#98682f', etf: '#795777', bond: '#9d5267' };
-const SECTOR_COLORS = ['#24563f','#ae5145','#98682f','#a33a3f','#4f686d','#795777','#9d5267','#447264','#916450','#556e79'];
+const INV_TYPE_COLORS = { stock: '#38bdf8', mutual_fund: '#a855f7', gold: '#fbbf24', etf: '#2dd4bf', bond: '#f472b6' };
+const SECTOR_COLORS = ['#a855f7','#22d3ee','#818cf8','#2dd4bf','#fbbf24','#f472b6','#38bdf8','#c084fc','#fb7185','#6366f1'];
 
 async function loadInvestments() {
   const status = document.getElementById('investmentsStatus');
@@ -1367,17 +1618,20 @@ function renderHoldingsTable(investments) {
     const dayColor = inv.day_change >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)';
     const typeLabel = INV_TYPE_LABELS[inv.type] || inv.type;
 
-    // Mini sparkline SVG
+    // Mini sparkline SVG (synthesize trend from avg -> current if history is empty)
     let sparkline = '';
-    if (inv.history && inv.history.length > 1) {
-      const h = inv.history;
+    const histSeries = (inv.history && inv.history.length > 1)
+      ? inv.history
+      : [inv.avg_price, (inv.avg_price + inv.current_price) / 2, inv.current_price];
+    if (histSeries.length > 1) {
+      const h = histSeries;
       const min = Math.min(...h);
       const max = Math.max(...h);
       const range = max - min || 1;
       const w = 80, ht = 28;
       const points = h.map((v, i) => `${(i / (h.length - 1)) * w},${ht - ((v - min) / range) * ht}`).join(' ');
-      const lineColor = h[h.length - 1] >= h[0] ? '#2f6b4f' : '#a33a3f';
-      sparkline = `<svg width="${w}" height="${ht}" viewBox="0 0 ${w} ${ht}" style="overflow:visible"><polyline points="${points}" fill="none" stroke="${lineColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const lineColor = h[h.length - 1] >= h[0] ? '#2dd4bf' : '#fb7185';
+      sparkline = `<svg width="${w}" height="${ht}" viewBox="0 0 ${w} ${ht}" style="overflow:visible"><polyline points="${points}" fill="none" stroke="${lineColor}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     }
 
     return `
@@ -1757,6 +2011,20 @@ async function addAccount() {
     body: JSON.stringify({ name, bank, type, last_four: lastFour || '0000', balance })
   });
 
+  let syncNotice = '';
+  if (!presentationMode) {
+    const profileKey = resolveBankProfileKey(null, bank, type);
+    if (profileKey) {
+      const synced = await syncAccountInvestmentsAndSips(profileKey, []);
+      const syncedParts = [];
+      if (synced.addedStocks.length > 0) syncedParts.push(`${synced.addedStocks.length} stock${synced.addedStocks.length > 1 ? 's' : ''}`);
+      if (synced.addedSips.length > 0) syncedParts.push(`${synced.addedSips.length} SIP${synced.addedSips.length > 1 ? 's' : ''}`);
+      if (syncedParts.length > 0) {
+        syncNotice = `Account added — auto-synced ${syncedParts.join(' and ')} to Portfolio.`;
+      }
+    }
+  }
+
   closeModal('addAccountModal');
   // Clear inputs
   document.getElementById('accNameInput').value = '';
@@ -1764,7 +2032,11 @@ async function addAccount() {
   document.getElementById('accLastFourInput').value = '';
   document.getElementById('accBalanceInput').value = '';
   // Reload dashboard to reflect changes
-  loadDashboard();
+  await loadDashboard();
+  if (syncNotice) {
+    const status = document.getElementById('dashboardStatus');
+    if (status) status.textContent = syncNotice;
+  }
 }
 
 
@@ -1961,11 +2233,13 @@ async function updateNotifBadge() {
 
   const unread = data.notifications.filter(n => !n.read).length;
   const badge = document.getElementById('notifBadge');
+  const topBadge = document.getElementById('topbarNotifBadge');
   if (unread > 0) {
-    badge.style.display = 'flex';
-    badge.textContent = unread;
+    if (badge) { badge.style.display = 'flex'; badge.textContent = unread; }
+    if (topBadge) { topBadge.style.display = 'flex'; topBadge.textContent = unread; }
   } else {
-    badge.style.display = 'none';
+    if (badge) badge.style.display = 'none';
+    if (topBadge) topBadge.style.display = 'none';
   }
 }
 
@@ -2031,6 +2305,8 @@ function toggleDarkMode() {
 async function togglePresentationMode() {
   presentationMode = !presentationMode;
   document.getElementById('presentationToggle').checked = presentationMode;
+  const demoBadge = document.getElementById('sidebarDemoState');
+  if (demoBadge) demoBadge.textContent = presentationMode ? 'Demo Active' : 'Live Mode';
 
   if (presentationMode) {
     await apiCall('/api/presentation/start', { method: 'POST' });
@@ -2047,8 +2323,130 @@ async function resetAllData() {
   await apiCall('/api/presentation/reset', { method: 'POST' });
   presentationMode = false;
   document.getElementById('presentationToggle').checked = false;
+  const demoBadge = document.getElementById('sidebarDemoState');
+  if (demoBadge) demoBadge.textContent = 'Live Mode';
   navigateTo('dashboard');
   updateNotifBadge();
+}
+
+
+// =============================================================================
+// COSMIC SHOWCASE HYDRATION & GLOBAL ⌘K COMMAND SEARCH
+// =============================================================================
+async function hydrateDashboardShowcase(data) {
+  // Portfolio quick figure
+  const portEl = document.getElementById('dashPortfolioQuick');
+  if (portEl) {
+    const invData = await apiCall('/api/investments');
+    if (invData?.summary) {
+      portEl.textContent = formatCurrency(invData.summary.current_value);
+    }
+  }
+
+  // AI Insight summary card
+  const insightEl = document.getElementById('dashAiInsightText');
+  if (insightEl) {
+    const insData = await apiCall('/api/ai/insights');
+    const runway = insData?.insights?.runway_months;
+    const topCat = data.category_breakdown?.[0];
+    if (topCat) {
+      const runwayText = typeof runway === 'number' ? ` Emergency runway: <strong>${runway} months</strong>.` : '';
+      insightEl.innerHTML = `Your highest spend this month is <strong>${escapeHtml(topCat.category)}</strong> (${formatCurrency(topCat.amount)}).${runwayText}`;
+    } else if (data.summary.savings > 0) {
+      insightEl.innerHTML = `You are saving <strong>${formatCurrency(data.summary.savings)}</strong> this month. Ask AI how to optimize your portfolio.`;
+    } else {
+      insightEl.textContent = 'Connect a bank or add transactions to unlock real-time AI wealth insights.';
+    }
+  }
+}
+
+function initGlobalCommandSearch() {
+  const input = document.getElementById('globalCommandSearch');
+  const results = document.getElementById('globalSearchResults');
+  if (!input || !results) return;
+
+  const quickCommands = [
+    { label: 'Home Dashboard', hint: 'Overview & balances', action: () => navigateTo('dashboard') },
+    { label: 'AI Advisor & What-If Simulator', hint: 'Ask AI about spending', action: () => navigateTo('ai-advisor') },
+    { label: 'Investment Portfolio & SIPs', hint: 'Stocks, mutual funds, gold', action: () => navigateTo('investments') },
+    { label: 'Analytics & Spending Breakdown', hint: '30-day cashflow charts', action: () => navigateTo('analytics') },
+    { label: 'Transactions History', hint: 'Filter & search records', action: () => navigateTo('transactions') },
+    { label: 'Budgets & Limits', hint: 'Track category caps', action: () => navigateTo('budgets') },
+    { label: 'Savings Goals', hint: 'Milestones & targets', action: () => navigateTo('goals') },
+    { label: 'Connect Bank Account', hint: 'Automatic bank sync', action: () => navigateTo('connect-bank') },
+    { label: 'Import Bank Statement (PDF)', hint: 'Parse transactions', action: () => navigateTo('import-statement') },
+    { label: 'Monthly Financial Report', hint: 'AI health score', action: () => navigateTo('monthly-report') },
+    { label: 'Add New Transaction', hint: 'Quick expense or income', action: () => showAddTransactionModal() }
+  ];
+
+  function renderResults(q) {
+    const query = q.trim().toLowerCase();
+    if (!query) {
+      results.classList.remove('open');
+      return;
+    }
+
+    const matchedCmds = quickCommands
+      .filter(c => c.label.toLowerCase().includes(query) || c.hint.toLowerCase().includes(query))
+      .slice(0, 5);
+
+    const matchedTx = (dashboardData?.recent_transactions || [])
+      .filter(t => t.description.toLowerCase().includes(query) || t.category.toLowerCase().includes(query))
+      .slice(0, 4);
+
+    const items = [];
+    matchedCmds.forEach((cmd, idx) => {
+      items.push(`<button type="button" class="search-result-item" data-cmd-idx="${idx}"><span><strong>${escapeHtml(cmd.label)}</strong><br><small style="color:var(--text-tertiary)">${escapeHtml(cmd.hint)}</small></span><span style="color:var(--accent-cyan)">→</span></button>`);
+    });
+    matchedTx.forEach(tx => {
+      items.push(`<button type="button" class="search-result-item" data-tx-q="${escapeHtml(tx.description)}"><span>${escapeHtml(tx.description)} <small style="color:var(--text-tertiary)">• ${escapeHtml(tx.category)}</small></span><strong style="color:${tx.amount > 0 ? 'var(--accent-success)' : 'var(--accent-danger)'}">${tx.amount > 0 ? '+' : '-'}${formatCurrency(tx.amount)}</strong></button>`);
+    });
+    items.push(`<button type="button" class="search-result-item" data-ask-ai="1"><span>✦ Ask AI Advisor: "<strong>${escapeHtml(q)}</strong>"</span><span style="color:var(--accent-primary-hover)">AI →</span></button>`);
+
+    results.innerHTML = items.join('');
+    results.classList.add('open');
+
+    results.querySelectorAll('[data-cmd-idx]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        matchedCmds[Number(btn.dataset.cmdIdx)].action();
+        results.classList.remove('open');
+        input.value = '';
+      });
+    });
+    results.querySelectorAll('[data-tx-q]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        navigateTo('transactions');
+        document.getElementById('txSearchInput').value = btn.dataset.txQ;
+        filterTransactions();
+        results.classList.remove('open');
+      });
+    });
+    const aiBtn = results.querySelector('[data-ask-ai]');
+    if (aiBtn) {
+      aiBtn.addEventListener('click', () => {
+        const prompt = input.value.trim();
+        results.classList.remove('open');
+        input.value = '';
+        navigateTo('ai-advisor');
+        if (prompt) askAI(prompt);
+      });
+    }
+  }
+
+  input.addEventListener('input', () => renderResults(input.value));
+  input.addEventListener('focus', () => { if (input.value.trim()) renderResults(input.value); });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.topbar-search')) results.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      input.focus();
+      input.select();
+    } else if (e.key === 'Escape') {
+      results.classList.remove('open');
+    }
+  });
 }
 
 
@@ -2077,6 +2475,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setSidebarOpen(false);
   presentationMode = true; // Start with demo data
   document.getElementById('presentationToggle').checked = true;
+  const darkToggle = document.getElementById('darkModeToggle');
+  if (darkToggle) darkToggle.checked = true;
+  initGlobalCommandSearch();
   loadDashboard();
   updateNotifBadge();
 });

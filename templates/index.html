@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FinMate — Your intelligent personal finance dashboard. Connect banks, import statements, track spending, and get AI-powered insights.">
+  <title>FinMate — Smart Finance Dashboard</title>
+  <link rel="stylesheet" href="static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Mobile Header -->
+<header class="mobile-header">
+  <button class="hamburger" id="menuToggle" onclick="toggleSidebar()" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <span>FinMate</span>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="app-layout">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19v-5m5 5v-8m5 8v-3m5 3V5 M4 10l5-4 5 4 5-5"/></svg></span>
+      <span class="logo-text">FinMate</span>
+      <button class="sidebar-close" onclick="toggleSidebar()" aria-label="Close navigation"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <button type="button" class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')" aria-current="page">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"/></svg></span>
+        <span>Dashboard</span>
+      </button>
+      <button type="button" class="nav-item" data-page="transactions" onclick="navigateTo('transactions')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16m-4-4 4 4-4 4 M20 17H4m4-4-4 4 4 4"/></svg></span>
+        <span>Transactions</span>
+      </button>
+
+      <div class="nav-section-title">Money Sources</div>
+      <button type="button" class="nav-item" data-page="connect-bank" onclick="navigateTo('connect-bank')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-5 9 5 M3 20h18 M5 17V11m7 6v-6m7 6v-6"/></svg></span>
+        <span>Connect Bank</span>
+      </button>
+      <button type="button" class="nav-item" data-page="import-statement" onclick="navigateTo('import-statement')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v4h16v-4 M12 3v12m-4-4 4 4 4-4"/></svg></span>
+        <span>Import Statement</span>
+      </button>
+
+      <div class="nav-section-title">Money Management</div>
+      <button type="button" class="nav-item" data-page="analytics" onclick="navigateTo('analytics')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16 M8 16v-4m5 4V8m5 8V5"/></svg></span>
+        <span>Analytics</span>
+      </button>
+      <button type="button" class="nav-item" data-page="investments" onclick="navigateTo('investments')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 7-9 M14 6h6v6"/></svg></span>
+        <span>Investments</span>
+      </button>
+      <button type="button" class="nav-item" data-page="budgets" onclick="navigateTo('budgets')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h15v14H4z M4 6l12-3v3 M19 11h-6v4h6"/></svg></span>
+        <span>Budgets</span>
+      </button>
+      <button type="button" class="nav-item" data-page="goals" onclick="navigateTo('goals')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 0-9 9 9 9 0 0 0 9-9Z M16 12a4 4 0 1 0-4 4 4 4 0 0 0 4-4Z"/></svg></span>
+        <span>Goals</span>
+      </button>
+
+      <div class="nav-section-title">AI</div>
+      <button type="button" class="nav-item" data-page="ai-advisor" onclick="navigateTo('ai-advisor')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></span>
+        <span>AI Advisor</span>
+      </button>
+      <button type="button" class="nav-item" data-page="monthly-report" onclick="navigateTo('monthly-report')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h10l4 4v14H5z M8 11h8m-8 4h8m-8 3h5"/></svg></span>
+        <span>Monthly Report</span>
+      </button>
+
+      <div class="nav-section-title">System</div>
+      <button type="button" class="nav-item" data-page="notifications" onclick="navigateTo('notifications')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5z M10 21h4"/></svg></span>
+        <span>Notifications</span>
+        <span class="nav-badge" id="notifBadge" style="display:none">0</span>
+      </button>
+      <button type="button" class="nav-item" data-page="settings" onclick="navigateTo('settings')">
+        <span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16 M8 4v4m8 2v4m-6 2v4"/></svg></span>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button type="button" class="presentation-toggle" onclick="togglePresentationMode()">
+        <span aria-hidden="true">🎬</span>
+        <span>Presentation Mode</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content" id="mainContent">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page-container active" id="page-dashboard">
+      <div class="presentation-banner" id="presentationBanner">
+        <span>Presentation Mode — Using sample data</span>
+        <button class="btn btn-ghost btn-sm" onclick="togglePresentationMode()" style="margin-left:auto">Exit</button>
+      </div>
+
+      <div class="page-header dashboard-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Your complete financial overview</p>
+        </div>
+        <div class="dashboard-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('connect-bank')">Connect Bank</button>
+          <button class="btn btn-primary" onclick="showAddTransactionModal()">Add Transaction</button>
+        </div>
+      </div>
+
+      <div class="dashboard-status">
+        <p id="dashboardStatus" role="status"></p>
+        <button class="btn btn-secondary btn-sm" id="dashboardRetry" onclick="loadDashboard()" hidden>Try again</button>
+      </div>
+      <div class="dashboard-grid">
+        <section class="card dashboard-balance" aria-labelledby="balanceHeading">
+          <div>
+            <h2 id="balanceHeading">Total Balance</h2>
+            <div id="dashTotalBalance">₹0</div>
+            <div id="dashAccountCount">Across 0 connected accounts</div>
+          </div>
+          <dl class="dashboard-totals">
+            <div><dt>Income this month</dt><dd id="dashIncome">₹0</dd></div>
+            <div><dt>Expenses this month</dt><dd id="dashExpenses">₹0</dd></div>
+            <div><dt>Savings this month</dt><dd id="dashSavings">₹0</dd></div>
+          </dl>
+        </section>
+        <div class="dashboard-columns">
+          <div class="card">
+            <div class="card-header">
+              <div><h2 class="card-title">Spending Trend</h2><p class="card-subtitle">Daily income and expenses</p></div>
+            </div>
+            <div class="chart-container">
+              <canvas id="dashSpendingChart" role="img" aria-label="Daily income and expenses"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div><h2 class="card-title">Category Breakdown</h2><p class="card-subtitle">Where your money went</p></div>
+            </div>
+            <div class="chart-container">
+              <canvas id="dashCategoryChart" role="img" aria-label="Spending by category"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Recent Transactions</h2>
+              <button class="btn btn-ghost btn-sm" onclick="navigateTo('transactions')">View All →</button>
+            </div>
+            <div class="transaction-list" id="dashRecentTx">
+              <!-- filled by JS -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Budget Overview</h2>
+              <button class="btn btn-ghost btn-sm" onclick="navigateTo('budgets')">Manage →</button>
+            </div>
+            <div id="dashBudgets">
+              <!-- filled by JS -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Money Sources</h2>
+            </div>
+            <div id="dashSourceCards" style="display:flex;flex-direction:column;gap:8px">
+              <!-- filled by JS -->
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Connected Accounts</h2>
+              <button class="btn btn-primary btn-sm" onclick="showAddAccountModal()">Add Account</button>
+            </div>
+            <div id="dashAccounts">
+              <!-- filled by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TRANSACTIONS ===== -->
+    <div class="page-container" id="page-transactions">
+      <div class="page-header">
+        <h1>Transactions</h1>
+        <p>All your financial transactions in one place</p>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <input type="text" class="form-input" id="txSearchInput" aria-label="Search transactions" placeholder="Search transactions..." oninput="filterTransactions()">
+        </div>
+        <select class="form-select" id="txSourceFilter" aria-label="Transaction source" onchange="filterTransactions()" style="width:180px">
+          <option value="">All Sources</option>
+          <option value="bank_sync">Bank Synced</option>
+          <option value="statement_import">Statement Import</option>
+          <option value="manual">Manual</option>
+        </select>
+        <select class="form-select" id="txCategoryFilter" aria-label="Transaction category" onchange="filterTransactions()" style="width:180px">
+          <option value="">All Categories</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="showAddTransactionModal()">Add Transaction</button>
+      </div>
+
+      <div class="card">
+        <div id="txList" class="transaction-list">
+          <!-- filled by JS -->
+        </div>
+        <div class="empty-state" id="txEmpty" style="display:none">
+          <h3>No transactions yet</h3>
+          <p>Add your first transaction or connect a bank account.</p>
+          <button class="btn btn-primary" onclick="showAddTransactionModal()">Add Transaction</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONNECT BANK ===== -->
+    <div class="page-container" id="page-connect-bank">
+      <div class="page-header">
+        <h1>Connect Bank</h1>
+        <p>Securely connect your bank for automatic transaction sync</p>
+      </div>
+
+      <!-- Current Accounts -->
+      <div class="card" id="bankCurrentAccounts" style="margin-bottom:20px;display:none">
+        <div class="card-header">
+          <div class="card-title">Connected Accounts</div>
+        </div>
+        <div id="bankAccountsList"></div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:600" id="bankTotalBalance">Total Across Accounts: ₹0</span>
+        </div>
+      </div>
+
+      <!-- Connection Flow -->
+      <div id="bankFlow">
+        <!-- Step 1: Bank Selection -->
+        <div class="card" id="bankStep1">
+          <div class="card-header">
+            <div class="card-title">Select Your Bank</div>
+            <span class="demo-badge">Demo Mode</span>
+          </div>
+          <div class="bank-list" id="bankList">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <!-- Step 2: Connection Animation -->
+        <div class="card" id="bankStep2" style="display:none">
+          <div class="connection-animation">
+            <h2 style="margin-bottom:8px" id="bankConnectTitle">Connecting to HDFC Bank...</h2>
+            <p style="color:var(--text-secondary);font-size:0.88rem">Establishing secure connection</p>
+            <div class="connection-steps" id="connectionSteps">
+              <div class="connection-step active" id="connStep1">
+                <div class="step-icon">1</div>
+                <span>Establishing secure connection...</span>
+              </div>
+              <div class="connection-step" id="connStep2">
+                <div class="step-icon">2</div>
+                <span>Verifying bank identity...</span>
+              </div>
+              <div class="connection-step" id="connStep3">
+                <div class="step-icon">3</div>
+                <span>Fetching account information...</span>
+              </div>
+              <div class="connection-step" id="connStep4">
+                <div class="step-icon">4</div>
+                <span>Setting up secure data sync...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Account Selection -->
+        <div class="card" id="bankStep3" style="display:none">
+          <div class="card-header">
+            <div class="card-title">Select Account to Connect</div>
+          </div>
+          <div id="bankAccountOptions"></div>
+          <div style="margin-top:20px;display:flex;gap:10px">
+            <button class="btn btn-secondary" onclick="resetBankFlow()">← Back</button>
+            <button class="btn btn-primary" id="bankConnectBtn" onclick="connectSelectedAccount()">Connect Account</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Permissions -->
+        <div class="card" id="bankStep4" style="display:none">
+          <div class="card-header">
+            <div class="card-title">Required Permissions</div>
+          </div>
+          <div style="padding:16px 0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div>
+                <div style="font-weight:600;font-size:0.92rem">Read Account Balance</div>
+                <div style="font-size:0.78rem;color:var(--text-secondary)">View your current account balance</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div>
+                <div style="font-weight:600;font-size:0.92rem">Read Transaction History</div>
+                <div style="font-size:0.78rem;color:var(--text-secondary)">View past transactions for categorization</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div>
+                <div style="font-weight:600;font-size:0.92rem;color:var(--text-tertiary)">Move or Transfer Money</div>
+                <div style="font-size:0.78rem;color:var(--text-tertiary)">We never request write access</div>
+              </div>
+            </div>
+            <div style="background:var(--accent-success-bg);border-radius:var(--radius-md);padding:12px 16px;margin-top:16px;font-size:0.82rem;color:var(--accent-success)">
+              Read-only access. We never store your banking credentials.
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-secondary" onclick="resetBankFlow()">Cancel</button>
+            <button class="btn btn-primary" onclick="grantPermissionsAndConnect()">Grant Permissions & Connect</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Sync Results -->
+        <div class="card" id="bankStep5" style="display:none">
+          <div style="text-align:center;padding:24px 0">
+            <h2 style="margin-bottom:4px">Account Connected!</h2>
+            <p style="color:var(--text-secondary);margin-bottom:20px" id="bankSyncMessage">47 new transactions found</p>
+
+            <div id="bankDuplicateWarning" class="duplicate-warning" style="display:none;text-align:left">
+              <div class="warning-text">
+                <strong id="bankDupCount">2 possible duplicates detected</strong>
+                Duplicates will be excluded from the import.
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+              <button class="btn btn-secondary" onclick="resetBankFlow()">Cancel</button>
+              <button class="btn btn-primary" onclick="importSyncedTransactions()">Import Transactions</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="bankEmptyState" style="display:none">
+        <div class="card">
+          <div class="empty-state">
+            <h3>Your finances can update automatically</h3>
+            <p>Connect your bank to sync transactions and balances.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('bankStep1').style.display='block';document.getElementById('bankEmptyState').style.display='none'">Connect Bank</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== IMPORT STATEMENT ===== -->
+    <div class="page-container" id="page-import-statement">
+      <div class="page-header">
+        <h1>Import Statement</h1>
+        <p>Upload a PDF bank statement to import transactions</p>
+      </div>
+
+      <!-- Step 1: Upload -->
+      <div class="card" id="stmtStep1">
+        <div class="upload-zone" id="uploadZone" onclick="simulatePdfUpload()">
+          <h3>Drop your bank statement here</h3>
+          <p>or click to browse • PDF format supported</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px">Choose File</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Parsing -->
+      <div class="card" id="stmtStep2" style="display:none">
+        <div class="loading-overlay">
+          <div class="spinner" style="width:48px;height:48px;border-width:4px"></div>
+          <div class="loading-text">Analyzing your statement...</div>
+          <div style="font-size:0.78rem;color:var(--text-tertiary)">Extracting and categorizing transactions</div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review -->
+      <div class="card" id="stmtStep3" style="display:none">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Review Imported Transactions</div>
+            <div class="card-subtitle" id="stmtInfo">HDFC Bank • Savings ****4582 • 18 transactions</div>
+          </div>
+          <span class="demo-badge">Demo</span>
+        </div>
+
+        <div id="stmtDuplicateWarning" class="duplicate-warning" style="display:none">
+          <div class="warning-text">
+            <strong id="stmtDupCount">0 possible duplicates detected</strong>
+            These will be excluded from the import.
+          </div>
+        </div>
+
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Statement transactions">
+          <table class="review-table" id="stmtReviewTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="stmtReviewBody"></tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+          <button class="btn btn-secondary" onclick="resetStatementFlow()">Cancel</button>
+          <button class="btn btn-primary" onclick="importStatementTransactions()">Import All Transactions</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Success -->
+      <div class="card" id="stmtStep4" style="display:none">
+        <div style="text-align:center;padding:32px">
+          <h2>Statement Imported Successfully!</h2>
+          <p style="color:var(--text-secondary);margin-bottom:20px" id="stmtSuccessMsg">18 transactions imported</p>
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button class="btn btn-secondary" onclick="resetStatementFlow()">Import Another</button>
+            <button class="btn btn-primary" onclick="navigateTo('dashboard')">Go to Dashboard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="stmtEmpty" style="display:none">
+        <div class="card">
+          <div class="empty-state">
+            <h3>Import your first statement</h3>
+            <p>Upload a PDF to automatically organize your transactions.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('stmtStep1').style.display='block';document.getElementById('stmtEmpty').style.display='none'">Upload Statement</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ANALYTICS ===== -->
+    <div class="page-container" id="page-analytics">
+      <div class="page-header">
+        <h1>Analytics</h1>
+        <p>Detailed breakdown of your financial activity</p>
+      </div>
+
+      <p class="dashboard-status" id="analyticsStatus" role="status"></p>
+      <div class="summary-row" style="margin-bottom:20px">
+        <div class="card stat-card">
+          <div class="stat-value" id="analyticsIncome">₹0</div>
+          <div class="stat-label">Monthly Income</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value" id="analyticsExpenses">₹0</div>
+          <div class="stat-label">Monthly Expenses</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value" id="analyticsTxCount">0</div>
+          <div class="stat-label">Total Transactions</div>
+        </div>
+      </div>
+
+      <div class="content-row" id="analyticsCharts" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Income vs Expenses (30 Days)</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="analyticsLineChart" role="img" aria-label="Income and expenses by day"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Spending by Category</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="analyticsPieChart" role="img" aria-label="Spending by category"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Category Details</div>
+        </div>
+        <div id="analyticsCategoryList"></div>
+      </div>
+    </div>
+
+    <!-- ===== INVESTMENTS ===== -->
+    <div class="page-container" id="page-investments">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1>Investment Portfolio</h1>
+          <p>Track your stocks, mutual funds, gold & SIPs</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="loadInvestments()">Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="showAddInvestmentModal()">Add Holding</button>
+        </div>
+      </div>
+
+      <!-- Portfolio Summary Cards -->
+      <p class="dashboard-status" id="investmentsStatus" role="status"></p>
+      <div class="summary-row" style="margin-bottom:20px">
+        <div class="card stat-card" style="background:var(--gradient-card);border:1px solid var(--border-color)">
+          <div class="stat-value" id="invCurrentValue">₹0</div>
+          <div class="stat-label">Portfolio Value</div>
+          <div class="stat-change positive" id="invTotalPnlBadge">+₹0 (0%)</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value" id="invTotalInvested">₹0</div>
+          <div class="stat-label">Total Invested</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value" id="invDayPnl">₹0</div>
+          <div class="stat-label">Today's P&L</div>
+          <div class="stat-change" id="invDayPnlBadge">Today</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value" id="invSipMonthly">₹0</div>
+          <div class="stat-label">Active SIPs/mo</div>
+        </div>
+      </div>
+
+      <!-- Tabs for sub-sections -->
+      <div class="tabs" id="invTabs" style="margin-bottom:20px">
+        <button class="tab active" onclick="switchInvTab('holdings', this)">Holdings</button>
+        <button class="tab" onclick="switchInvTab('sips', this)">SIPs</button>
+        <button class="tab" onclick="switchInvTab('calculator', this)">SIP Calculator</button>
+        <button class="tab" onclick="switchInvTab('watchlist', this)">Watchlist</button>
+      </div>
+
+      <!-- Holdings Tab -->
+      <div class="inv-tab-content active" id="invTab-holdings">
+        <div class="content-row" id="investmentCharts" style="margin-bottom:20px">
+          <!-- Allocation by Type -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Allocation by Type</div>
+            </div>
+            <div class="chart-container" style="height:240px">
+              <canvas id="invTypeChart" role="img" aria-label="Investments by asset type"></canvas>
+            </div>
+          </div>
+          <!-- Allocation by Sector -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Allocation by Sector</div>
+            </div>
+            <div class="chart-container" style="height:240px">
+              <canvas id="invSectorChart" role="img" aria-label="Investments by sector"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Gainers & Losers -->
+        <div class="content-row" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Top Gainers</div>
+            </div>
+            <div id="invTopGainers" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Top Losers</div>
+            </div>
+            <div id="invTopLosers" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+        </div>
+
+        <!-- Holdings Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All Holdings</div>
+            <span id="invHoldingsCount" class="badge badge-info">0 Holdings</span>
+          </div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Investment holdings">
+            <table class="review-table" id="invHoldingsTable">
+              <thead>
+                <tr>
+                  <th>Asset</th>
+                  <th>Type</th>
+                  <th>Qty</th>
+                  <th>Avg Price</th>
+                  <th>Current Price</th>
+                  <th>Invested</th>
+                  <th>Current Value</th>
+                  <th>P&L</th>
+                  <th>Day %</th>
+                  <th>Trend</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="invHoldingsBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="invHoldingsEmpty" style="display:none">
+            <h3>No investments yet</h3>
+            <p>Add your first stock, mutual fund, or gold holding to start tracking.</p>
+            <button class="btn btn-primary" onclick="showAddInvestmentModal()">Add Holding</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIPs Tab -->
+      <div class="inv-tab-content" id="invTab-sips">
+        <div class="content-row" style="margin-bottom:20px">
+          <div class="card stat-card">
+            <div class="stat-value" id="sipTotalInvested">₹0</div>
+            <div class="stat-label">Total SIP Invested</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-value" id="sipCurrentValue">₹0</div>
+            <div class="stat-label">Current SIP Value</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Active SIPs</div>
+            <button class="btn btn-primary btn-sm" onclick="showAddSipModal()">New SIP</button>
+          </div>
+          <div id="sipList" style="display:flex;flex-direction:column;gap:12px"></div>
+          <div class="empty-state" id="sipEmpty" style="display:none">
+            <h3>No SIPs active</h3>
+            <p>Set up a Systematic Investment Plan to invest regularly.</p>
+            <button class="btn btn-primary" onclick="showAddSipModal()">Start SIP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIP Calculator Tab -->
+      <div class="inv-tab-content" id="invTab-calculator">
+        <div class="card" style="border:1px solid var(--accent-color)">
+          <div class="card-header">
+            <div>
+              <div class="card-title" style="color:var(--accent-color)">SIP Returns Calculator</div>
+              <div class="card-subtitle">Model your future wealth with systematic investing</div>
+            </div>
+            <span class="badge badge-info">Interactive</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr));gap:20px;margin-top:12px">
+            <!-- Inputs -->
+            <div style="display:flex;flex-direction:column;gap:14px;background:rgba(255,255,255,0.02);padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-color)">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-weight:600" for="sipCalcAmount">Monthly SIP Amount (₹)</label>
+                <input type="number" class="form-input" id="sipCalcAmount" value="5000" oninput="calculateSIP()">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-weight:600" for="sipCalcYears">Duration (Years)</label>
+                <input type="range" id="sipCalcYears" min="1" max="30" value="10" oninput="document.getElementById('sipCalcYearsLabel').textContent=this.value+' years';calculateSIP()" style="width:100%;accent-color:var(--accent-primary)">
+                <span id="sipCalcYearsLabel" style="font-size:0.85rem;color:var(--text-secondary)">10 years</span>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-weight:600" for="sipCalcReturn">Expected Annual Return (%)</label>
+                <input type="range" id="sipCalcReturn" min="4" max="25" value="12" step="0.5" oninput="document.getElementById('sipCalcReturnLabel').textContent=this.value+'%';calculateSIP()" style="width:100%;accent-color:var(--accent-primary)">
+                <span id="sipCalcReturnLabel" style="font-size:0.85rem;color:var(--text-secondary)">12%</span>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-weight:600" for="sipCalcStepUp">Annual Step-Up (%)</label>
+                <input type="number" class="form-input" id="sipCalcStepUp" value="0" placeholder="0" oninput="calculateSIP()">
+                <span style="font-size:0.72rem;color:var(--text-tertiary)">Increase SIP amount by this % every year</span>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div id="sipCalcResults" style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div style="background:var(--bg-glass);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-color)">
+                  <div style="font-size:0.75rem;color:var(--text-secondary)">Total Invested</div>
+                  <div style="font-size:1.3rem;font-weight:700;color:var(--text-primary)" id="sipCalcTotalInvested">₹0</div>
+                </div>
+                <div style="background:var(--accent-success-bg);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-color)">
+                  <div style="font-size:0.75rem;color:var(--accent-success)">Future Value</div>
+                  <div style="font-size:1.3rem;font-weight:700;color:var(--accent-success)" id="sipCalcFutureValue">₹0</div>
+                </div>
+              </div>
+              <div style="background:var(--accent-primary-bg);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-color);text-align:center">
+                <div style="font-size:0.78rem;color:var(--text-secondary)">Wealth Gain</div>
+                <div style="font-size:1.5rem;font-weight:800;color:var(--accent-color)" id="sipCalcWealthGain">₹0</div>
+                <div style="font-size:0.82rem;color:var(--accent-primary)" id="sipCalcReturnPct">0% absolute returns</div>
+              </div>
+              <div class="chart-container" style="height:220px">
+                <canvas id="sipCalcChart" role="img" aria-label="Projected SIP growth"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watchlist Tab -->
+      <div class="inv-tab-content" id="invTab-watchlist">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Watchlist</div>
+          </div>
+          <div id="watchlistItems" style="display:flex;flex-direction:column;gap:2px"></div>
+          <div class="empty-state" id="watchlistEmpty" style="display:none">
+            <h3>Watchlist is empty</h3>
+            <p>Add stocks and funds you want to track.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BUDGETS ===== -->
+    <div class="page-container" id="page-budgets">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Budgets</h1>
+          <p>Track your spending against budget limits</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showAddBudgetModal()">Add Budget</button>
+      </div>
+
+      <div id="budgetsList"></div>
+
+      <div class="empty-state" id="budgetsEmpty" style="display:none">
+        <h3>No budgets set</h3>
+        <p>Create a budget to track your spending in specific categories.</p>
+        <button class="btn btn-primary" onclick="showAddBudgetModal()">Add Budget</button>
+      </div>
+    </div>
+
+    <!-- ===== GOALS ===== -->
+    <div class="page-container" id="page-goals">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Savings Goals</h1>
+          <p>Track your progress toward financial goals</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showAddGoalModal()">Add Goal</button>
+      </div>
+
+      <div id="goalsList"></div>
+
+      <div class="empty-state" id="goalsEmpty" style="display:none">
+        <h3>No goals yet</h3>
+        <p>Set a savings goal to start building financial discipline.</p>
+        <button class="btn btn-primary" onclick="showAddGoalModal()">Add Goal</button>
+      </div>
+    </div>
+
+    <!-- ===== AI ADVISOR & SCENARIO SIMULATOR ===== -->
+    <div class="page-container" id="page-ai-advisor">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1>AI Advisor & Scenario Planner</h1>
+          <p>Personalized AI chat insights, recurring expense detection, and 'What-If' financial scenario modeling</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="loadAIInsights()">Refresh Insights</button>
+          <button class="btn btn-primary btn-sm" onclick="scrollToSimulator()">What-If Simulator</button>
+        </div>
+      </div>
+
+      <!-- Proactive Insights Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr));gap:16px;margin-bottom:20px">
+        <!-- Subscriptions & Fixed Expenses Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Detected Subscriptions & Fixed Bills</div>
+            <span class="demo-badge" id="subTotalBadge">₹0/mo</span>
+          </div>
+          <div id="aiSubscriptionsList" style="display:flex;flex-direction:column;gap:8px">
+            <div class="text-secondary" style="font-size:0.85rem">Scanning transaction history...</div>
+          </div>
+        </div>
+
+        <!-- Financial Runway & Outlook Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Financial Runway & Projections</div>
+          </div>
+          <div id="aiRunwayCard">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span style="font-size:0.9rem;color:var(--text-secondary)">Emergency Runway:</span>
+              <span id="aiRunwayBadge" class="badge badge-success" style="font-size:0.95rem;padding:6px 12px">0 Months</span>
+            </div>
+            <div style="font-size:0.82rem;color:var(--text-tertiary);margin-bottom:12px">Based on your liquid balance vs current monthly expenditure rate.</div>
+            <div style="border-top:1px solid var(--border-color);padding-top:12px;display:flex;flex-direction:column;gap:6px" id="aiProjectionsList">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- What-If Scenario Simulator Card -->
+      <div class="card" id="simulatorCard" style="margin-bottom:20px;border:1px solid var(--accent-color)">
+        <div class="card-header">
+          <div>
+            <div class="card-title" style="color:var(--accent-color)">'What-If' Financial Scenario Simulator</div>
+            <div class="card-subtitle">Model custom changes to see future balance, emergency runway, and goal acceleration</div>
+          </div>
+          <span class="badge badge-info">Interactive Engine</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr));gap:16px;margin-top:12px">
+          <!-- Input Form Column -->
+          <div style="display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.02);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-color)">
+            <label class="form-label" style="font-weight:600">1. Cut Category Spending</label>
+            <div style="display:flex;gap:8px">
+              <select class="form-select" id="simCategorySelect" style="flex:1">
+                <option value="Food & Dining">Food & Dining</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+              </select>
+              <select class="form-select" id="simCutPct" style="width:100px" onchange="runSimulation()">
+                <option value="10">10% Off</option>
+                <option value="20" selected>20% Off</option>
+                <option value="30">30% Off</option>
+                <option value="50">50% Off</option>
+              </select>
+            </div>
+
+            <label class="form-label" style="font-weight:600;margin-top:4px" for="simOneTimeExpense">2. One-Time Planned Purchase (₹)</label>
+            <input type="number" class="form-input" id="simOneTimeExpense" placeholder="e.g. 15000 (New Phone)" value="0" oninput="runSimulation()">
+
+            <label class="form-label" style="font-weight:600;margin-top:4px" for="simExtraSavings">3. Additional Monthly Savings (₹)</label>
+            <input type="number" class="form-input" id="simExtraSavings" placeholder="e.g. 5000" value="0" oninput="runSimulation()">
+
+            <button class="btn btn-primary" onclick="runSimulation()" style="margin-top:8px">Calculate Impact</button>
+          </div>
+
+          <!-- Output Impact Column -->
+          <div id="simResultsBox" style="background:var(--accent-primary-bg);padding:16px;border-radius:var(--radius-md);border:1px solid var(--border-color);display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <h3 style="font-size:1.05rem;margin-bottom:12px;color:var(--text-primary)">Simulated Impact Summary</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                <div style="background:var(--card-bg);padding:10px;border-radius:var(--radius-sm)">
+                  <div style="font-size:0.75rem;color:var(--text-secondary)">Monthly Category Savings</div>
+                  <div style="font-size:1.1rem;font-weight:700;color:var(--accent-success)" id="simMonthlyCatSavings">₹0</div>
+                </div>
+                <div style="background:var(--card-bg);padding:10px;border-radius:var(--radius-sm)">
+                  <div style="font-size:0.75rem;color:var(--text-secondary)">Net 1-Year Financial Impact</div>
+                  <div style="font-size:1.1rem;font-weight:700;color:var(--accent-color)" id="simAnnualImpact">₹0</div>
+                </div>
+              </div>
+              <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:8px" id="simRunwayImpactText">
+                New Emergency Runway: <strong style="color:var(--text-primary)" id="simNewRunway">0 months</strong>
+              </div>
+              <div id="simGoalImpactList" style="font-size:0.82rem;display:flex;flex-direction:column;gap:4px">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Chat Assistant Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">AI Advisor Chat</div>
+        </div>
+        <div class="ai-chat-container">
+          <div class="ai-suggestions" id="aiSuggestions">
+            <button class="ai-suggestion-chip" onclick="askAI('Where did I spend the most this month?')">Where did I spend the most?</button>
+            <button class="ai-suggestion-chip" onclick="askAI('How are my budgets looking?')">Budget status</button>
+            <button class="ai-suggestion-chip" onclick="askAI('How are my savings goals?')">Savings progress</button>
+            <button class="ai-suggestion-chip" onclick="askAI('Give me a financial summary')">Financial summary</button>
+            <button class="ai-suggestion-chip" onclick="askAI('Give me some tips to save money')">Money saving tips</button>
+            <button class="ai-suggestion-chip" onclick="askAI('How much did I earn this month?')">Income analysis</button>
+          </div>
+
+          <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="chat-message assistant">
+              <div class="chat-bubble">Hello! I'm FinMate's AI advisor. I analyze your actual transaction data to give you personalized financial insights and scenario simulations. What would you like to know?</div>
+            </div>
+          </div>
+
+          <div class="ai-chat-input">
+            <input type="text" class="form-input" id="aiInput" placeholder="Ask me about your finances..." onkeypress="if(event.key==='Enter')askAI()">
+            <button class="btn btn-primary" onclick="askAI()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== MONTHLY REPORT ===== -->
+    <div class="page-container" id="page-monthly-report">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Monthly Report</h1>
+          <p>AI-generated financial summary</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="generateReport()">Generate Report</button>
+      </div>
+
+      <div id="reportContent">
+        <div class="empty-state">
+          <h3>No report generated yet</h3>
+          <p>Click "Generate Report" to create your AI-powered monthly financial summary.</p>
+          <button class="btn btn-primary" onclick="generateReport()">Generate AI Monthly Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NOTIFICATIONS ===== -->
+    <div class="page-container" id="page-notifications">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Notifications</h1>
+          <p>Stay updated on your financial activity</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark All Read</button>
+      </div>
+
+      <div class="card">
+        <div id="notifList"></div>
+        <div class="empty-state" id="notifEmpty" style="display:none">
+          <h3>No notifications</h3>
+          <p>You're all caught up!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="page-container" id="page-settings">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Customize your FinMate experience</p>
+      </div>
+
+      <div class="card">
+        <div class="settings-section">
+          <h3>Appearance</h3>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Dark Mode</div>
+              <div class="setting-desc">Use dark theme for the application</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="darkModeToggle" aria-label="Dark Mode" onchange="toggleDarkMode()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Notifications</h3>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Budget Alerts</div>
+              <div class="setting-desc">Get notified when approaching budget limits</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Goal Milestones</div>
+              <div class="setting-desc">Celebrate when you reach savings milestones</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Large Transactions</div>
+              <div class="setting-desc">Alert for transactions above ₹2,000</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Presentation</h3>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Presentation Mode</div>
+              <div class="setting-desc">Load sample data for demonstration purposes</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="presentationToggle" onchange="togglePresentationMode()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 id="settingsAccountsHeading" tabindex="-1">Connected Accounts</h3>
+          <p class="setting-desc">Disconnect an account to remove it from FinMate. Its imported transactions will be kept.</p>
+          <p class="setting-desc" id="settingsAccountsStatus" role="status"></p>
+          <div id="settingsAccountsList"></div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Data Management</h3>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Reset All Data</div>
+              <div class="setting-desc">Clear all transactions, accounts, and settings</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="resetAllData()">Reset Data</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Security</h3>
+          <div style="background:var(--accent-success-bg);border-radius:var(--radius-md);padding:16px;font-size:0.85rem;color:var(--accent-success)">
+            <div style="font-weight:600;margin-bottom:8px">Your Data is Safe</div>
+            <ul style="padding-left:18px;display:flex;flex-direction:column;gap:4px">
+              <li>Bank passwords are never stored</li>
+              <li>Read-only access to financial data</li>
+              <li>Provider-hosted secure authentication</li>
+              <li>No banking PINs, OTPs, or CVVs collected</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add Transaction Modal -->
+<dialog class="modal" id="addTransactionModal" aria-labelledby="addTransactionModalTitle">
+    <div class="modal-header">
+      <h2 id="addTransactionModalTitle">Add Transaction</h2>
+      <button class="modal-close" aria-label="Close dialog" onclick="closeModal('addTransactionModal')">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs" style="margin-bottom:16px">
+        <button class="tab active" onclick="setTxType('expense',this)">Expense</button>
+        <button class="tab" onclick="setTxType('income',this)">Income</button>
+      </div>
+      <input type="hidden" id="txTypeInput" value="expense">
+
+      <div class="form-group">
+        <label class="form-label" for="txDescInput">Description</label>
+        <input type="text" class="form-input" id="txDescInput" placeholder="e.g., Zomato Order">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="txAmountInput">Amount (₹)</label>
+          <input type="number" class="form-input" id="txAmountInput" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="txDateInput">Date</label>
+          <input type="date" class="form-input" id="txDateInput">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="txCategoryInput">Category</label>
+        <select class="form-select" id="txCategoryInput">
+          <option value="Food & Dining" data-icon="🍕">Food & Dining</option>
+          <option value="Shopping" data-icon="🛍️">Shopping</option>
+          <option value="Transport" data-icon="🚗">Transport</option>
+          <option value="Entertainment" data-icon="🎬">Entertainment</option>
+          <option value="Bills & Utilities" data-icon="📱">Bills & Utilities</option>
+          <option value="Health" data-icon="🏥">Health</option>
+          <option value="Education" data-icon="📚">Education</option>
+          <option value="Salary" data-icon="💼">Salary</option>
+          <option value="Freelance" data-icon="💻">Freelance</option>
+          <option value="Investment Returns" data-icon="📈">Investment Returns</option>
+          <option value="Other" data-icon="📦">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addTransactionModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+    </div>
+</dialog>
+
+<!-- Add Budget Modal -->
+<dialog class="modal" id="addBudgetModal" aria-labelledby="addBudgetModalTitle">
+    <div class="modal-header">
+      <h2 id="addBudgetModalTitle">Add Budget</h2>
+      <button class="modal-close" aria-label="Close dialog" onclick="closeModal('addBudgetModal')">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="budgetCategoryInput">Category</label>
+        <select class="form-select" id="budgetCategoryInput">
+          <option value="Food & Dining" data-icon="🍕">Food & Dining</option>
+          <option value="Shopping" data-icon="🛍️">Shopping</option>
+          <option value="Transport" data-icon="🚗">Transport</option>
+          <option value="Entertainment" data-icon="🎬">Entertainment</option>
+          <option value="Bills & Utilities" data-icon="📱">Bills & Utilities</option>
+          <option value="Health" data-icon="🏥">Health</option>
+          <option value="Education" data-icon="📚">Education</option>
+          <option value="Other" data-icon="📦">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="budgetLimitInput">Monthly Limit (₹)</label>
+        <input type="number" class="form-input" id="budgetLimitInput" placeholder="5000">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addBudgetModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addBudget()">Add Budget</button>
+    </div>
+</dialog>
+
+<!-- Add Goal Modal -->
+<dialog class="modal" id="addGoalModal" aria-labelledby="addGoalModalTitle">
+    <div class="modal-header">
+      <h2 id="addGoalModalTitle">Add Savings Goal</h2>
+      <button class="modal-close" aria-label="Close dialog" onclick="closeModal('addGoalModal')">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="goalNameInput">Goal Name</label>
+        <input type="text" class="form-input" id="goalNameInput" placeholder="e.g., Emergency Fund">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="goalTargetInput">Target Amount (₹)</label>
+          <input type="number" class="form-input" id="goalTargetInput" placeholder="100000">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="goalCurrentInput">Current Savings (₹)</label>
+          <input type="number" class="form-input" id="goalCurrentInput" placeholder="0" value="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="goalDeadlineInput">Deadline</label>
+          <input type="date" class="form-input" id="goalDeadlineInput">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="goalContribInput">Monthly Contribution (₹)</label>
+          <input type="number" class="form-input" id="goalContribInput" placeholder="5000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="goalIconInput">Icon</label>
+        <select class="form-select" id="goalIconInput">
+          <option value="🏦">Bank</option>
+          <option value="💻">Tech</option>
+          <option value="✈️">Travel</option>
+          <option value="🏠">Home</option>
+          <option value="🚗">Vehicle</option>
+          <option value="📚">Education</option>
+          <option value="💍">Wedding</option>
+          <option value="🎯">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addGoalModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addGoal()">Create Goal</button>
+    </div>
+</dialog>
+
+
+<!-- Add Investment Modal -->
+<dialog class="modal" id="addInvestmentModal" aria-labelledby="addInvestmentModalTitle">
+    <div class="modal-header">
+      <h2 id="addInvestmentModalTitle">Add Investment</h2>
+      <button class="modal-close" aria-label="Close dialog" onclick="closeModal('addInvestmentModal')">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="invNameInput">Asset Name</label>
+        <input type="text" class="form-input" id="invNameInput" placeholder="e.g., Reliance Industries">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="invSymbolInput">Symbol / Ticker</label>
+          <input type="text" class="form-input" id="invSymbolInput" placeholder="e.g., RELIANCE">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="invTypeInput">Type</label>
+          <select class="form-select" id="invTypeInput">
+            <option value="stock">Stock</option>
+            <option value="mutual_fund">Mutual Fund</option>
+            <option value="gold">Gold / SGB</option>
+            <option value="etf">ETF</option>
+            <option value="bond">Bond</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="invQtyInput">Quantity</label>
+          <input type="number" class="form-input" id="invQtyInput" placeholder="10" step="0.001">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="invAvgPriceInput">Avg Buy Price (₹)</label>
+          <input type="number" class="form-input" id="invAvgPriceInput" placeholder="2450.00" step="0.01">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="invCurrentPriceInput">Current Price (₹)</label>
+          <input type="number" class="form-input" id="invCurrentPriceInput" placeholder="2680.50" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="invSectorInput">Sector</label>
+          <input type="text" class="form-input" id="invSectorInput" placeholder="e.g., IT, Banking, FMCG">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addInvestmentModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addInvestment()">Add Investment</button>
+    </div>
+</dialog>
+
+<!-- Add SIP Modal -->
+<dialog class="modal" id="addSipModal" aria-labelledby="addSipModalTitle">
+    <div class="modal-header">
+      <h2 id="addSipModalTitle">New SIP</h2>
+      <button class="modal-close" aria-label="Close dialog" onclick="closeModal('addSipModal')">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="sipNameInput">Fund / Stock Name</label>
+        <input type="text" class="form-input" id="sipNameInput" placeholder="e.g., Nifty 50 Index Fund">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="sipAmountInput">Monthly Amount (₹)</label>
+          <input type="number" class="form-input" id="sipAmountInput" placeholder="5000">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="sipDateInput">SIP Date (Day of Month)</label>
+          <input type="number" class="form-input" id="sipDateInput" min="1" max="28" value="5" placeholder="5">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addSipModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addSip()">Start SIP</button>
+    </div>
+</dialog>
+
+<!-- Add Account Modal -->
+<dialog class="modal" id="addAccountModal" aria-labelledby="addAccountModalTitle">
+    <div class="modal-header">
+      <h2 id="addAccountModalTitle">Add Manual Account</h2>
+      <button class="modal-close" aria-label="Close dialog" onclick="closeModal('addAccountModal')">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="accNameInput">Account Name</label>
+        <input type="text" class="form-input" id="accNameInput" placeholder="e.g., Personal Savings">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="accBankInput">Bank Name</label>
+          <input type="text" class="form-input" id="accBankInput" placeholder="e.g., SBI">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="accTypeInput">Type</label>
+          <select class="form-select" id="accTypeInput">
+            <option value="savings">Savings</option>
+            <option value="checking">Checking / Current</option>
+            <option value="credit">Credit Card</option>
+            <option value="loan">Loan</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="accLastFourInput">Last 4 Digits</label>
+          <input type="text" class="form-input" id="accLastFourInput" placeholder="1234" maxlength="4">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="accBalanceInput">Current Balance (₹)</label>
+          <input type="number" class="form-input" id="accBalanceInput" placeholder="10000">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addAccountModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addAccount()">Add Account</button>
+    </div>
+</dialog>
+
+
+<script src="static/client-api.js"></script>
+<script src="static/app.js"></script>
+</body>
+</html>
